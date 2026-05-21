@@ -1,7 +1,5 @@
 Big Data Storage final project submission notes
 
-Workspace: /Users/joaopanizzutti/Downloads/big_data_storage_project_done
-
 Before Moodle submission, replace these placeholders:
 1. group_xxx with your group number.
 2. NAME, STUDENT NUMBER on the report cover page.
@@ -22,10 +20,7 @@ Restore commands:
 From the submitted zip root:
 mongorestore --db group_xxx --collection sales_receipts --drop group_xxx.bson
 
-From this workspace before zipping:
-mongorestore --db group_xxx --collection sales_receipts --drop deliverables/group_xxx.bson
-
-Full dump style restore from the zip support folder:
+Full dump style restore from the support folder:
 mongorestore --drop support/dump
 
 Dataset count: 1000 sales receipt documents.
