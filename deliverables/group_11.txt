@@ -1,13 +1,13 @@
-Big Data Storage final project, MongoDB commands for group_xxx
+Big Data Storage final project, MongoDB commands for group_11
 
 Database and collection
-use group_xxx;
+use group_11;
 
 Restore BSON backup from the submitted zip root
-mongorestore --db group_xxx --collection sales_receipts --drop group_xxx.bson
+mongorestore --db group_11 --collection sales_receipts --drop group_11.bson
 
 Restore from this workspace, before zipping
-mongorestore --db group_xxx --collection sales_receipts --drop deliverables/group_xxx.bson
+mongorestore --db group_11 --collection sales_receipts --drop deliverables/group_11.bson
 
 Full dump style restore, if using the support dump folder
 mongorestore --drop support/dump
@@ -18,7 +18,7 @@ db.getCollectionInfos({ name: "sales_receipts" });
 db.sales_receipts.getIndexes();
 
 Create collection with validator before importing, if starting from CSV or JSON instead of restoring BSON
-use group_xxx;
+use group_11;
 db.createCollection("sales_receipts", {
   validator: {
   "$jsonSchema": {

@@ -1,0 +1,35 @@
+Slide 1: One receipt became one MongoDB document
+I start with the main modelling choice. Each sale receipt became one MongoDB document. That means the branch, customer, payment, item, totals, and rating stay together. For this dataset that is the simplest design because most questions start from a receipt.
+
+Slide 2: The dataset is small enough to defend, but real enough to model
+The dataset has 1000 receipts, three branches, six product lines, and three payment methods. Total revenue is $322,966.75 and average rating is 6.97. It is not huge, but it is large enough to test queries, validators, aggregations, and indexes.
+
+Slide 3: One collection covers the questions in the assignment
+The collection is called sales_receipts. I kept one collection because the receipt is the unit the manager reads. Splitting products or branches into separate collections would make this project more complex without helping the five required questions.
+
+Slide 4: Validation blocks the mistakes that would break the numbers
+The validator protects the fields that can break the analysis. It requires the receipt fields, restricts the category values, and checks number ranges. For example, sale hour must be between 0 and 23, quantity must be at least 1, and rating must stay between 0 and 10.
+
+Slide 5: The five queries answer normal store manager questions
+The five queries are not random examples. They are store questions: branch C in March, high value Food and beverages receipts, cash receipts above average, member Sports and travel tickets, and low rating receipts that need follow up.
+
+Slide 6: The aggregations turn receipts into branch and product results
+The aggregations summarize the receipt data. Food and beverages is the top product line with $56,144.84. Branch C, Naypyitaw, is the top branch with $110,568.71. I also aggregate sales by hour and customer type by payment method.
+
+Slide 7: Indexes were added only where a query needed them
+I added indexes based on the query patterns. The important point is that I did not index everything. Date, branch plus date, product plus total, payment plus date, customer plus product plus rating, rating plus total, and sale hour each connect to a query or aggregation.
+
+Slide 8: The index story is visible even with 1000 rows
+With only 1000 receipts, the time difference is small. So I explain it through candidate reads. Branch C in March goes from 1000 possible documents to 106. Food and beverages above 500 goes from 174 category receipts to 37. Low ratings go from 1000 to 153.
+
+Slide 9: The tradeoff is repeated text, not query complexity
+The good part is simple reads and short queries. The tradeoff is repeated branch and product text. If this were a production stock system, I would add catalogue and inventory collections, but for this assignment the one collection design fits the receipt based data.
+
+Slide 10: The package is ready after the final group number
+The package has the report, BSON backup, query file, presentation, metadata, checklist, data dictionary, defense notes, source CSV, and dump style backup. The package is ready for Group 11.
+
+If the teacher asks why only one collection:
+Because the receipt is the main business object in this dataset. Most reads start there, and embedded fields keep the query commands short.
+
+If the teacher asks why indexes matter with only 1000 receipts:
+The point is the read pattern, not a dramatic speed demo. The indexes show how the same model would scale when the number of receipts grows.

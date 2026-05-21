@@ -1,13 +1,13 @@
 Big Data Storage requirement map
 
-1. Report cover page: group_xxx_report.docx, first page.
-2. Company and dataset page: group_xxx_report.docx, section named One page description.
-3. BSON backup: group_xxx.bson, 1000 documents.
-4. Query file: group_xxx.txt.
+1. Report cover page: group_11_report.docx, first page.
+2. Company and dataset page: group_11_report.docx, section named One page description.
+3. BSON backup: group_11.bson, 1000 documents.
+4. Query file: group_11.txt.
 5. Design decisions: report section named Model design decisions.
 6. Advantages and disadvantages: report section named Advantages and disadvantages.
-7. PowerPoint: group_xxx_presentation.pptx, 8 slides.
-8. Zip package: group_xxx.zip.
+7. PowerPoint: group_11_presentation.pptx, 8 slides.
+8. Zip package: group_11.zip.
 
 MongoDB checks
 
@@ -17,6 +17,6 @@ MongoDB checks
 4. Aggregation pipelines: 4.
 5. Indexes: 7 plus the default id index.
 
-Fields to replace before upload
+Final group number
 
-1. group_xxx.
+1. Group 11.
