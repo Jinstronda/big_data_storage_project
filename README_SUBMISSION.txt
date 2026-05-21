@@ -1,9 +1,13 @@
 Big Data Storage final project submission notes
 
-Before Moodle submission, replace these placeholders:
-1. group_xxx with your group number.
-2. NAME, STUDENT NUMBER on the report cover page.
-3. Add the same group and member information on the presentation title slide if you want.
+Before Moodle submission, replace group_xxx with your real group number.
+The member names and student numbers are already filled in the report and presentation.
+
+Team members:
+Daniyal Ahmad, 20241831
+Artemii Alekseev, 20240645
+Viktoriia German, 20240650
+João Panizzutti, 20241624
 
 Main files:
 1. deliverables/group_xxx_report.docx

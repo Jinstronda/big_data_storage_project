@@ -20,5 +20,3 @@ MongoDB checks
 Fields to replace before upload
 
 1. group_xxx.
-2. NAME.
-3. STUDENT NUMBER.
