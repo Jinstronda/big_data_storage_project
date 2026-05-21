@@ -1,0 +1,22 @@
+{
+  "deliverables/group_xxx.bson": true,
+  "deliverables/group_xxx.metadata.json": true,
+  "deliverables/group_xxx.txt": true,
+  "deliverables/group_xxx_report.docx": true,
+  "deliverables/group_xxx_report.pdf": true,
+  "deliverables/group_xxx_presentation.pptx": true,
+  "deliverables/group_xxx_checklist.md": true,
+  "deliverables/group_xxx_data_dictionary.md": true,
+  "deliverables/group_xxx_defense_notes.md": true,
+  "GOAL.md": true,
+  "README_SUBMISSION.txt": true,
+  "data/supermarket_sales.csv": true,
+  "bson_size_bytes": 646593,
+  "documents": 1000,
+  "collections": 1,
+  "validation_rules_at_least_5": true,
+  "queries_at_least_5": true,
+  "aggregations_at_least_3": true,
+  "indexes_defined": 7,
+  "deliverables/group_xxx.zip": true
+}

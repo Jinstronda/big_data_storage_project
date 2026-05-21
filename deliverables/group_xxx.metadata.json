@@ -1,0 +1,288 @@
+{
+  "options": {
+    "validator": {
+      "$jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "_id",
+          "invoice_id",
+          "branch",
+          "customer",
+          "items",
+          "sale_datetime",
+          "sale_month",
+          "sale_weekday",
+          "sale_hour",
+          "payment",
+          "financials",
+          "rating"
+        ],
+        "properties": {
+          "_id": {
+            "bsonType": "string",
+            "pattern": "^[0-9]{3}-[0-9]{2}-[0-9]{4}$"
+          },
+          "invoice_id": {
+            "bsonType": "string",
+            "pattern": "^[0-9]{3}-[0-9]{2}-[0-9]{4}$"
+          },
+          "branch": {
+            "bsonType": "object",
+            "required": [
+              "code",
+              "city"
+            ],
+            "properties": {
+              "code": {
+                "enum": [
+                  "A",
+                  "B",
+                  "C"
+                ]
+              },
+              "city": {
+                "enum": [
+                  "Yangon",
+                  "Mandalay",
+                  "Naypyitaw"
+                ]
+              }
+            }
+          },
+          "customer": {
+            "bsonType": "object",
+            "required": [
+              "type",
+              "gender"
+            ],
+            "properties": {
+              "type": {
+                "enum": [
+                  "Member",
+                  "Normal"
+                ]
+              },
+              "gender": {
+                "enum": [
+                  "Female",
+                  "Male"
+                ]
+              }
+            }
+          },
+          "items": {
+            "bsonType": "array",
+            "minItems": 1,
+            "items": {
+              "bsonType": "object",
+              "required": [
+                "product_line",
+                "unit_price",
+                "quantity",
+                "line_cogs",
+                "tax_5",
+                "line_total",
+                "gross_income"
+              ],
+              "properties": {
+                "product_line": {
+                  "enum": [
+                    "Electronic accessories",
+                    "Fashion accessories",
+                    "Food and beverages",
+                    "Health and beauty",
+                    "Home and lifestyle",
+                    "Sports and travel"
+                  ]
+                },
+                "unit_price": {
+                  "bsonType": [
+                    "double",
+                    "decimal"
+                  ],
+                  "minimum": 0
+                },
+                "quantity": {
+                  "bsonType": "int",
+                  "minimum": 1
+                },
+                "line_cogs": {
+                  "bsonType": [
+                    "double",
+                    "decimal"
+                  ],
+                  "minimum": 0
+                },
+                "tax_5": {
+                  "bsonType": [
+                    "double",
+                    "decimal"
+                  ],
+                  "minimum": 0
+                },
+                "line_total": {
+                  "bsonType": [
+                    "double",
+                    "decimal"
+                  ],
+                  "minimum": 0
+                },
+                "gross_income": {
+                  "bsonType": [
+                    "double",
+                    "decimal"
+                  ],
+                  "minimum": 0
+                }
+              }
+            }
+          },
+          "sale_datetime": {
+            "bsonType": "date"
+          },
+          "sale_month": {
+            "bsonType": "string",
+            "pattern": "^[0-9]{4}-[0-9]{2}$"
+          },
+          "sale_weekday": {
+            "enum": [
+              "Monday",
+              "Tuesday",
+              "Wednesday",
+              "Thursday",
+              "Friday",
+              "Saturday",
+              "Sunday"
+            ]
+          },
+          "sale_hour": {
+            "bsonType": "int",
+            "minimum": 0,
+            "maximum": 23
+          },
+          "payment": {
+            "bsonType": "object",
+            "required": [
+              "method"
+            ],
+            "properties": {
+              "method": {
+                "enum": [
+                  "Cash",
+                  "Credit card",
+                  "Ewallet"
+                ]
+              }
+            }
+          },
+          "financials": {
+            "bsonType": "object",
+            "required": [
+              "cogs",
+              "tax_5",
+              "total",
+              "gross_income"
+            ],
+            "properties": {
+              "cogs": {
+                "bsonType": [
+                  "double",
+                  "decimal"
+                ],
+                "minimum": 0
+              },
+              "tax_5": {
+                "bsonType": [
+                  "double",
+                  "decimal"
+                ],
+                "minimum": 0
+              },
+              "total": {
+                "bsonType": [
+                  "double",
+                  "decimal"
+                ],
+                "minimum": 0
+              },
+              "gross_income": {
+                "bsonType": [
+                  "double",
+                  "decimal"
+                ],
+                "minimum": 0
+              }
+            }
+          },
+          "rating": {
+            "bsonType": [
+              "double",
+              "decimal"
+            ],
+            "minimum": 0,
+            "maximum": 10
+          }
+        }
+      }
+    },
+    "validationLevel": "strict",
+    "validationAction": "error"
+  },
+  "indexes": [
+    {
+      "v": 2,
+      "key": {
+        "_id": 1
+      },
+      "name": "_id_"
+    },
+    {
+      "name": "idx_sale_datetime",
+      "key": {
+        "sale_datetime": 1
+      }
+    },
+    {
+      "name": "idx_branch_date",
+      "key": {
+        "branch.code": 1,
+        "sale_datetime": 1
+      }
+    },
+    {
+      "name": "idx_product_total",
+      "key": {
+        "items.product_line": 1,
+        "financials.total": -1
+      }
+    },
+    {
+      "name": "idx_payment_date",
+      "key": {
+        "payment.method": 1,
+        "sale_datetime": 1
+      }
+    },
+    {
+      "name": "idx_customer_product_rating",
+      "key": {
+        "customer.type": 1,
+        "items.product_line": 1,
+        "rating": -1
+      }
+    },
+    {
+      "name": "idx_rating_total",
+      "key": {
+        "rating": 1,
+        "financials.total": -1
+      }
+    },
+    {
+      "name": "idx_hour",
+      "key": {
+        "sale_hour": 1
+      }
+    }
+  ]
+}

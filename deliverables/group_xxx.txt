@@ -1,0 +1,618 @@
+Big Data Storage final project, MongoDB commands for group_xxx
+
+Database and collection
+use group_xxx;
+
+Restore BSON backup from the submitted zip root
+mongorestore --db group_xxx --collection sales_receipts --drop group_xxx.bson
+
+Restore from this workspace, before zipping
+mongorestore --db group_xxx --collection sales_receipts --drop deliverables/group_xxx.bson
+
+Full dump style restore, if using the support dump folder
+mongorestore --drop support/dump
+
+After restore, run the validator and index commands below if Compass or mongorestore did not apply metadata automatically. Then verify the load.
+db.sales_receipts.countDocuments();
+db.getCollectionInfos({ name: "sales_receipts" });
+db.sales_receipts.getIndexes();
+
+Create collection with validator before importing, if starting from CSV or JSON instead of restoring BSON
+use group_xxx;
+db.createCollection("sales_receipts", {
+  validator: {
+  "$jsonSchema": {
+    "bsonType": "object",
+    "required": [
+      "_id",
+      "invoice_id",
+      "branch",
+      "customer",
+      "items",
+      "sale_datetime",
+      "sale_month",
+      "sale_weekday",
+      "sale_hour",
+      "payment",
+      "financials",
+      "rating"
+    ],
+    "properties": {
+      "_id": {
+        "bsonType": "string",
+        "pattern": "^[0-9]{3}-[0-9]{2}-[0-9]{4}$"
+      },
+      "invoice_id": {
+        "bsonType": "string",
+        "pattern": "^[0-9]{3}-[0-9]{2}-[0-9]{4}$"
+      },
+      "branch": {
+        "bsonType": "object",
+        "required": [
+          "code",
+          "city"
+        ],
+        "properties": {
+          "code": {
+            "enum": [
+              "A",
+              "B",
+              "C"
+            ]
+          },
+          "city": {
+            "enum": [
+              "Yangon",
+              "Mandalay",
+              "Naypyitaw"
+            ]
+          }
+        }
+      },
+      "customer": {
+        "bsonType": "object",
+        "required": [
+          "type",
+          "gender"
+        ],
+        "properties": {
+          "type": {
+            "enum": [
+              "Member",
+              "Normal"
+            ]
+          },
+          "gender": {
+            "enum": [
+              "Female",
+              "Male"
+            ]
+          }
+        }
+      },
+      "items": {
+        "bsonType": "array",
+        "minItems": 1,
+        "items": {
+          "bsonType": "object",
+          "required": [
+            "product_line",
+            "unit_price",
+            "quantity",
+            "line_cogs",
+            "tax_5",
+            "line_total",
+            "gross_income"
+          ],
+          "properties": {
+            "product_line": {
+              "enum": [
+                "Electronic accessories",
+                "Fashion accessories",
+                "Food and beverages",
+                "Health and beauty",
+                "Home and lifestyle",
+                "Sports and travel"
+              ]
+            },
+            "unit_price": {
+              "bsonType": [
+                "double",
+                "decimal"
+              ],
+              "minimum": 0
+            },
+            "quantity": {
+              "bsonType": "int",
+              "minimum": 1
+            },
+            "line_cogs": {
+              "bsonType": [
+                "double",
+                "decimal"
+              ],
+              "minimum": 0
+            },
+            "tax_5": {
+              "bsonType": [
+                "double",
+                "decimal"
+              ],
+              "minimum": 0
+            },
+            "line_total": {
+              "bsonType": [
+                "double",
+                "decimal"
+              ],
+              "minimum": 0
+            },
+            "gross_income": {
+              "bsonType": [
+                "double",
+                "decimal"
+              ],
+              "minimum": 0
+            }
+          }
+        }
+      },
+      "sale_datetime": {
+        "bsonType": "date"
+      },
+      "sale_month": {
+        "bsonType": "string",
+        "pattern": "^[0-9]{4}-[0-9]{2}$"
+      },
+      "sale_weekday": {
+        "enum": [
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday",
+          "Sunday"
+        ]
+      },
+      "sale_hour": {
+        "bsonType": "int",
+        "minimum": 0,
+        "maximum": 23
+      },
+      "payment": {
+        "bsonType": "object",
+        "required": [
+          "method"
+        ],
+        "properties": {
+          "method": {
+            "enum": [
+              "Cash",
+              "Credit card",
+              "Ewallet"
+            ]
+          }
+        }
+      },
+      "financials": {
+        "bsonType": "object",
+        "required": [
+          "cogs",
+          "tax_5",
+          "total",
+          "gross_income"
+        ],
+        "properties": {
+          "cogs": {
+            "bsonType": [
+              "double",
+              "decimal"
+            ],
+            "minimum": 0
+          },
+          "tax_5": {
+            "bsonType": [
+              "double",
+              "decimal"
+            ],
+            "minimum": 0
+          },
+          "total": {
+            "bsonType": [
+              "double",
+              "decimal"
+            ],
+            "minimum": 0
+          },
+          "gross_income": {
+            "bsonType": [
+              "double",
+              "decimal"
+            ],
+            "minimum": 0
+          }
+        }
+      },
+      "rating": {
+        "bsonType": [
+          "double",
+          "decimal"
+        ],
+        "minimum": 0,
+        "maximum": 10
+      }
+    }
+  }
+},
+  validationLevel: "strict",
+  validationAction: "error"
+});
+
+If the collection already exists, apply the validator with collMod
+db.runCommand({
+  collMod: "sales_receipts",
+  validator: {
+  "$jsonSchema": {
+    "bsonType": "object",
+    "required": [
+      "_id",
+      "invoice_id",
+      "branch",
+      "customer",
+      "items",
+      "sale_datetime",
+      "sale_month",
+      "sale_weekday",
+      "sale_hour",
+      "payment",
+      "financials",
+      "rating"
+    ],
+    "properties": {
+      "_id": {
+        "bsonType": "string",
+        "pattern": "^[0-9]{3}-[0-9]{2}-[0-9]{4}$"
+      },
+      "invoice_id": {
+        "bsonType": "string",
+        "pattern": "^[0-9]{3}-[0-9]{2}-[0-9]{4}$"
+      },
+      "branch": {
+        "bsonType": "object",
+        "required": [
+          "code",
+          "city"
+        ],
+        "properties": {
+          "code": {
+            "enum": [
+              "A",
+              "B",
+              "C"
+            ]
+          },
+          "city": {
+            "enum": [
+              "Yangon",
+              "Mandalay",
+              "Naypyitaw"
+            ]
+          }
+        }
+      },
+      "customer": {
+        "bsonType": "object",
+        "required": [
+          "type",
+          "gender"
+        ],
+        "properties": {
+          "type": {
+            "enum": [
+              "Member",
+              "Normal"
+            ]
+          },
+          "gender": {
+            "enum": [
+              "Female",
+              "Male"
+            ]
+          }
+        }
+      },
+      "items": {
+        "bsonType": "array",
+        "minItems": 1,
+        "items": {
+          "bsonType": "object",
+          "required": [
+            "product_line",
+            "unit_price",
+            "quantity",
+            "line_cogs",
+            "tax_5",
+            "line_total",
+            "gross_income"
+          ],
+          "properties": {
+            "product_line": {
+              "enum": [
+                "Electronic accessories",
+                "Fashion accessories",
+                "Food and beverages",
+                "Health and beauty",
+                "Home and lifestyle",
+                "Sports and travel"
+              ]
+            },
+            "unit_price": {
+              "bsonType": [
+                "double",
+                "decimal"
+              ],
+              "minimum": 0
+            },
+            "quantity": {
+              "bsonType": "int",
+              "minimum": 1
+            },
+            "line_cogs": {
+              "bsonType": [
+                "double",
+                "decimal"
+              ],
+              "minimum": 0
+            },
+            "tax_5": {
+              "bsonType": [
+                "double",
+                "decimal"
+              ],
+              "minimum": 0
+            },
+            "line_total": {
+              "bsonType": [
+                "double",
+                "decimal"
+              ],
+              "minimum": 0
+            },
+            "gross_income": {
+              "bsonType": [
+                "double",
+                "decimal"
+              ],
+              "minimum": 0
+            }
+          }
+        }
+      },
+      "sale_datetime": {
+        "bsonType": "date"
+      },
+      "sale_month": {
+        "bsonType": "string",
+        "pattern": "^[0-9]{4}-[0-9]{2}$"
+      },
+      "sale_weekday": {
+        "enum": [
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday",
+          "Sunday"
+        ]
+      },
+      "sale_hour": {
+        "bsonType": "int",
+        "minimum": 0,
+        "maximum": 23
+      },
+      "payment": {
+        "bsonType": "object",
+        "required": [
+          "method"
+        ],
+        "properties": {
+          "method": {
+            "enum": [
+              "Cash",
+              "Credit card",
+              "Ewallet"
+            ]
+          }
+        }
+      },
+      "financials": {
+        "bsonType": "object",
+        "required": [
+          "cogs",
+          "tax_5",
+          "total",
+          "gross_income"
+        ],
+        "properties": {
+          "cogs": {
+            "bsonType": [
+              "double",
+              "decimal"
+            ],
+            "minimum": 0
+          },
+          "tax_5": {
+            "bsonType": [
+              "double",
+              "decimal"
+            ],
+            "minimum": 0
+          },
+          "total": {
+            "bsonType": [
+              "double",
+              "decimal"
+            ],
+            "minimum": 0
+          },
+          "gross_income": {
+            "bsonType": [
+              "double",
+              "decimal"
+            ],
+            "minimum": 0
+          }
+        }
+      },
+      "rating": {
+        "bsonType": [
+          "double",
+          "decimal"
+        ],
+        "minimum": 0,
+        "maximum": 10
+      }
+    }
+  }
+},
+  validationLevel: "strict",
+  validationAction: "error"
+});
+
+Indexes
+db.sales_receipts.createIndex({"sale_datetime": 1}, { name: "idx_sale_datetime" });
+db.sales_receipts.createIndex({"branch.code": 1, "sale_datetime": 1}, { name: "idx_branch_date" });
+db.sales_receipts.createIndex({"items.product_line": 1, "financials.total": -1}, { name: "idx_product_total" });
+db.sales_receipts.createIndex({"payment.method": 1, "sale_datetime": 1}, { name: "idx_payment_date" });
+db.sales_receipts.createIndex({"customer.type": 1, "items.product_line": 1, "rating": -1}, { name: "idx_customer_product_rating" });
+db.sales_receipts.createIndex({"rating": 1, "financials.total": -1}, { name: "idx_rating_total" });
+db.sales_receipts.createIndex({"sale_hour": 1}, { name: "idx_hour" });
+
+Simple insight queries
+
+1. March receipts for branch C, sorted by highest ticket value.
+db.sales_receipts.find(
+  { "branch.code": "C", sale_datetime: { $gte: ISODate("2019-03-01T00:00:00Z"), $lt: ISODate("2019-04-01T00:00:00Z") } },
+  { invoice_id: 1, branch: 1, sale_datetime: 1, "financials.total": 1, rating: 1 }
+).sort({ "financials.total": -1 }).limit(10);
+
+Business insight: branch C had 106 March receipts. This query shows the highest ticket values for that branch.
+Checked output:
+count 106
+702-83-5291 | C | Fashion accessories | Cash | $943.30 | rating 6.6
+751-69-0068 | C | Sports and travel | Ewallet | $937.82 | rating 9.0
+277-35-5865 | C | Food and beverages | Cash | $935.27 | rating 6.7
+
+2. High value Food and beverages receipts.
+db.sales_receipts.find(
+  { "items.product_line": "Food and beverages", "financials.total": { $gte: 500 } },
+  { invoice_id: 1, branch: 1, customer: 1, items: 1, "financials.total": 1 }
+).sort({ "financials.total": -1 });
+
+Business insight: Food and beverages is the top product line by revenue at $56,144.84.
+Checked output:
+count 37
+283-26-5248 | C | Food and beverages | Ewallet | $1,034.46 | rating 4.5
+393-65-2792 | C | Food and beverages | Credit card | $939.54 | rating 9.6
+866-99-7614 | C | Food and beverages | Credit card | $936.60 | rating 4.4
+
+3. Cash transactions above the average ticket.
+db.sales_receipts.find(
+  { "payment.method": "Cash", "financials.total": { $gte: 322.97 } },
+  { invoice_id: 1, sale_datetime: 1, payment: 1, "financials.total": 1 }
+).sort({ sale_datetime: 1 });
+
+Business insight: Cash is the largest payment method by sales value at $112,206.57.
+Checked output:
+count 142
+651-88-7328 | A | Fashion accessories | Cash | $621.24 | rating 7.7
+530-90-9855 | A | Home and lifestyle | Cash | $399.76 | rating 5.7
+891-01-7034 | B | Electronic accessories | Cash | $470.67 | rating 6.7
+
+4. Member receipts in Sports and travel.
+db.sales_receipts.find(
+  { "customer.type": "Member", "items.product_line": "Sports and travel" },
+  { invoice_id: 1, customer: 1, items: 1, "financials.total": 1, rating: 1 }
+).sort({ rating: -1 }).limit(15);
+
+Business insight: this shows member receipts for Sports and travel, sorted by rating.
+Checked output:
+count 87
+285-68-5083 | C | Sports and travel | Credit card | $77.93 | rating 10.0
+347-34-2234 | B | Sports and travel | Ewallet | $520.41 | rating 10.0
+166-19-2553 | A | Sports and travel | Cash | $561.08 | rating 9.9
+
+5. Low rating receipts for service follow up.
+db.sales_receipts.find(
+  { rating: { $lt: 5 } },
+  { invoice_id: 1, branch: 1, sale_datetime: 1, items: 1, rating: 1, "financials.total": 1 }
+).sort({ rating: 1, "financials.total": -1 }).limit(20);
+
+Business insight: this lists low rating receipts that managers may need to follow up.
+Checked output:
+count 153
+845-94-6841 | C | Food and beverages | Cash | $688.72 | rating 4.0
+836-82-5858 | B | Health and beauty | Ewallet | $655.55 | rating 4.0
+828-46-6863 | A | Food and beverages | Credit card | $620.74 | rating 4.0
+
+Aggregation pipelines
+
+A. Revenue, profit, tickets, and rating by branch.
+db.sales_receipts.aggregate([
+  { $group: { _id: "$branch.code", city: { $first: "$branch.city" }, tickets: { $sum: 1 }, revenue: { $sum: "$financials.total" }, gross_income: { $sum: "$financials.gross_income" }, avg_rating: { $avg: "$rating" } } },
+  { $sort: { revenue: -1 } }
+]);
+Checked output:
+C | $110,568.71 | 328 tickets | avg rating 7.07
+A | $106,200.37 | 340 tickets | avg rating 7.03
+B | $106,197.67 | 332 tickets | avg rating 6.82
+
+B. Product line performance.
+db.sales_receipts.aggregate([
+  { $unwind: "$items" },
+  { $group: { _id: "$items.product_line", units: { $sum: "$items.quantity" }, revenue: { $sum: "$items.line_total" }, gross_income: { $sum: "$items.gross_income" }, avg_rating: { $avg: "$rating" } } },
+  { $sort: { revenue: -1 } }
+]);
+Checked output:
+Food and beverages | $56,144.84 | 174 tickets | avg rating 7.11
+Sports and travel | $55,122.83 | 166 tickets | avg rating 6.92
+Electronic accessories | $54,337.53 | 170 tickets | avg rating 6.92
+Fashion accessories | $54,305.89 | 178 tickets | avg rating 7.03
+
+C. Sales by hour of day.
+db.sales_receipts.aggregate([
+  { $group: { _id: "$sale_hour", tickets: { $sum: 1 }, revenue: { $sum: "$financials.total" }, avg_ticket: { $avg: "$financials.total" } } },
+  { $sort: { revenue: -1 } }
+]);
+Checked output:
+hour 19 | $39,699.51 | 113 tickets
+hour 13 | $34,723.23 | 103 tickets
+hour 10 | $31,421.48 | 101 tickets
+hour 15 | $31,179.51 | 102 tickets
+hour 14 | $30,828.40 | 83 tickets
+
+D. Customer type and payment mix.
+db.sales_receipts.aggregate([
+  { $group: { _id: { customer_type: "$customer.type", payment: "$payment.method" }, tickets: { $sum: 1 }, revenue: { $sum: "$financials.total" }, avg_rating: { $avg: "$rating" } } },
+  { $sort: { revenue: -1 } }
+]);
+Checked output:
+Member | $164,223.44 | 501 tickets | avg rating 6.94
+Normal | $158,743.31 | 499 tickets | avg rating 7.01
+
+Index performance checks to run in Compass or mongosh
+
+db.sales_receipts.find({ "branch.code": "C", sale_datetime: { $gte: ISODate("2019-03-01T00:00:00Z"), $lt: ISODate("2019-04-01T00:00:00Z") } }).explain("executionStats");
+db.sales_receipts.find({ "items.product_line": "Food and beverages", "financials.total": { $gte: 500 } }).sort({ "financials.total": -1 }).explain("executionStats");
+db.sales_receipts.find({ "payment.method": "Cash", "financials.total": { $gte: 322.97 } }).sort({ sale_datetime: 1 }).explain("executionStats");
+db.sales_receipts.find({ "customer.type": "Member", "items.product_line": "Sports and travel" }).sort({ rating: -1 }).explain("executionStats");
+db.sales_receipts.find({ rating: { $lt: 5 } }).sort({ rating: 1, "financials.total": -1 }).explain("executionStats");
+
+Index impact on this 1000 document course dataset
+1. Branch C in March: full scan checks 1000 documents. The branch plus date index narrows the candidate set to about 106 receipts.
+2. High value Food and beverages: full scan checks 1000 documents. The product plus total index starts from 174 Food and beverages receipts and returns 37 receipts above 500.
+3. Cash above average ticket: full scan checks 1000 documents. The payment plus date index starts from 344 cash receipts and returns 142 receipts above the average ticket.
+4. Member Sports and travel: full scan checks 1000 documents. The customer plus product plus rating index starts from 87 matching loyalty receipts and can also serve the rating sort.
+5. Low rating follow up: full scan checks 1000 documents. The rating plus total index starts from 153 low rating receipts and can serve the follow up sort.
