@@ -8,6 +8,7 @@ Daniyal Ahmad, 20241831
 Artemii Alekseev, 20240645
 Viktoriia German, 20240650
 João Panizzutti, 20241624
+Ivan Romanov, 20240639
 
 Main files:
 1. deliverables/group_xxx_report.docx
